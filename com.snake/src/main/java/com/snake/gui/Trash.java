@@ -112,8 +112,6 @@ public class Trash extends Application {
 			animationRate += 0.05;
 			timeline.setRate(animationRate);
 
-			System.out.println("deneme");
-			
 		}
 		
 	}	
