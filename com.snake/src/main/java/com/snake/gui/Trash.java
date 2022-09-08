@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -24,10 +25,10 @@ public class Trash extends Application {
 	int sceneX = 600;
 	int sceneY = 400;
 	int size = 10;
-	int speed = 130;
 	int currentDirection;
 	int score = 0;
 	double animationRate = 1.00;
+	boolean gameOver = false;
 	ArrayList <Rectangle> snake = new ArrayList<>();
 	Rectangle food = new Rectangle(size-1, size-1, Color.BLUE);
 	Rectangle dummy;
@@ -38,11 +39,11 @@ public class Trash extends Application {
     private static final int RIGHT = 0;
     private static final int LEFT = 1;
     private static final int UP = 2;
-    private static final int DOWN = 3;
-    
+    private static final int DOWN = 3;    
 	
 	public Node sceneGraph() {
         pane = new Pane();
+        pane.setStyle("-fx-background-color:gray;");
         pane.setPrefSize(sceneX, sceneY);
         for (int i = 0; i < 3; i++) {
             Rectangle block = new Rectangle(size-1, size-1, Color.BLACK);
@@ -63,11 +64,20 @@ public class Trash extends Application {
 		food.setArcWidth(5);
 		pane.getChildren().add(food);
 		
-        return pane;
-		
+        return pane;		
 	}
 	
 	private void run(GridPane root) {	
+		if (gameOver) {
+			Text gameOver = new Text(sceneX/5.5, sceneY/2, "GAME OVER");
+			gameOver.setFill(Color.RED);
+			gameOver.setFont(Font.font(STYLESHEET_CASPIAN, 70));
+			pane.getChildren().add(gameOver);
+			System.out.println(snake.get(0).getLayoutX()+", "+snake.get(0).getLayoutY());
+			pane.getChildren().remove(snake);
+			timeline.stop();
+//			return;
+		}
 		for (int i = snake.size()-1; i>=1; i--) {
 			snake.get(i).setLayoutX(snake.get(i-1).getLayoutX());
 			snake.get(i).setLayoutY(snake.get(i-1).getLayoutY());
@@ -89,6 +99,8 @@ public class Trash extends Application {
         	snake.get(0).setLayoutY(snake.get(0).getLayoutY()+size);
             break;
     }
+		gameOver();
+
 
 	}
 	
@@ -111,10 +123,16 @@ public class Trash extends Application {
 			scoreBoard.setText("Score: "+score);			
 			animationRate += 0.05;
 			timeline.setRate(animationRate);
-
-		}
-		
+		}	
 	}	
+	
+	private void gameOver() {
+		if (snake.get(0).getLayoutX() < 0 || snake.get(0).getLayoutY() < 0 
+				|| snake.get(0).getLayoutX() >= (sceneX) || snake.get(0).getLayoutY() >= (sceneY)) {
+			gameOver = true;
+		}		
+		
+	}
     
     @Override
     public void start(Stage primaryStage) {
@@ -153,7 +171,7 @@ public class Trash extends Application {
             }
         });
     	    	
-    	timeline = new Timeline(new KeyFrame(Duration.millis(speed), e -> run(root)));
+    	timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(root)));
     	timeline.setCycleCount(Animation.INDEFINITE);
     	timeline.play();   
 
