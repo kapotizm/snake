@@ -45,36 +45,21 @@ public class Trash extends Application {
         pane = new Pane();
         pane.setStyle("-fx-background-color:gray;");
         pane.setPrefSize(sceneX, sceneY);
-        for (int i = 0; i < 3; i++) {
-            Rectangle block = new Rectangle(size-1, size-1, Color.BLACK);
-            // Position the shapes in the Pane using the layoutX/Y properties.
-            block.setLayoutX(100);
-            block.setLayoutY(300);
-            block.setArcHeight(size-5);
-            block.setArcWidth(size-5);
-            pane.getChildren().add(block);
-            snake.add(block);
-        }
-        
+        createSnake();
+        createFood();
         createDummy();
-              
-		food.setLayoutX(Math.round(Math.random()*sceneX/size)*size);
-		food.setLayoutY(Math.round(Math.random()*sceneY/size)*size);
-		food.setArcHeight(5);
-		food.setArcWidth(5);
 		pane.getChildren().add(food);
-		
         return pane;		
 	}
 	
-	private void run(GridPane root) {	
+	private void run() {	
 		if (gameOver) {
 			Text gameOver = new Text(sceneX/5.5, sceneY/2, "GAME OVER");
 			gameOver.setFill(Color.RED);
 			gameOver.setFont(Font.font(STYLESHEET_CASPIAN, 70));
 			pane.getChildren().add(gameOver);
 			System.out.println(snake.get(0).getLayoutX()+", "+snake.get(0).getLayoutY());
-			pane.getChildren().remove(snake);
+			pane.getChildren().removeAll(snake.get(0), snake.get(1));
 			timeline.stop();
 //			return;
 		}
@@ -104,6 +89,26 @@ public class Trash extends Application {
 
 	}
 	
+	private void createSnake() {
+        for (int i = 0; i < 3; i++) {
+            dummy = new Rectangle(size-1, size-1, Color.BLACK);
+            // Position the shapes in the Pane using the layoutX/Y properties.
+            dummy.setLayoutX(100);
+            dummy.setLayoutY(300);
+            dummy.setArcHeight(size-5);
+            dummy.setArcWidth(size-5);
+            pane.getChildren().add(dummy);
+            snake.add(dummy);
+        }
+	}
+	
+	private void createFood() {
+		food.setLayoutX(Math.round(Math.random()*(sceneX-size)/size)*size);
+		food.setLayoutY(Math.round(Math.random()*(sceneY-size)/size)*size);
+		food.setArcHeight(5);
+		food.setArcWidth(5);
+	}
+	
 	private void createDummy() {
 		dummy = new Rectangle(size-1, size-1, Color.BLACK);
 		dummy.setLayoutX(-100);
@@ -115,8 +120,7 @@ public class Trash extends Application {
 	
 	private void eatFood() {
 		if (snake.get(0).getLayoutX() == food.getLayoutX() && snake.get(0).getLayoutY() == food.getLayoutY()) {
-			food.setLayoutX(Math.round(Math.random()*sceneX/size)*size);
-			food.setLayoutY(Math.round(Math.random()*sceneY/size)*size);
+			createFood();
 			snake.add(dummy);
 			createDummy();
 			score +=5;
@@ -132,6 +136,20 @@ public class Trash extends Application {
 			gameOver = true;
 		}		
 		
+	}
+	
+	private void newGame() {
+    	pane.getChildren().removeAll(snake);
+    	pane.getChildren().remove(dummy);
+    	createSnake();
+    	createFood();
+    	createDummy();
+    	pane.getChildren().add(food);
+    	score = 0;
+		scoreBoard.setText("Score: "+score);			
+    	animationRate = 1;
+    	timeline.setRate(animationRate);
+    	timeline.play();
 	}
     
     @Override
@@ -168,10 +186,13 @@ public class Trash extends Application {
                         currentDirection = DOWN;
                     }
                 }
+                if (code == KeyCode.N) {
+                	newGame();
+                }
             }
         });
     	    	
-    	timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(root)));
+    	timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run()));
     	timeline.setCycleCount(Animation.INDEFINITE);
     	timeline.play();   
 
