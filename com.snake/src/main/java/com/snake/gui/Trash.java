@@ -5,10 +5,12 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -35,6 +37,7 @@ public class Trash extends Application {
 	Pane pane;
 	Timeline timeline;
 	Text scoreBoard;
+	Button newGame = new Button("New Game");	
 
     private static final int RIGHT = 0;
     private static final int LEFT = 1;
@@ -58,10 +61,16 @@ public class Trash extends Application {
 			gameOver.setFill(Color.RED);
 			gameOver.setFont(Font.font(STYLESHEET_CASPIAN, 70));
 			pane.getChildren().add(gameOver);
-			System.out.println(snake.get(0).getLayoutX()+", "+snake.get(0).getLayoutY());
 			pane.getChildren().removeAll(snake.get(0), snake.get(1));
+			newGame.setLayoutX((sceneX/5.5)+150);
+			newGame.setLayoutY((sceneY/2)+10);	
+			newGame.setOnAction(new EventHandler<ActionEvent>() {
+			    @Override public void handle(ActionEvent e) {
+			        newGame();
+			    }
+			});		
+			pane.getChildren().add(newGame);
 			timeline.stop();
-//			return;
 		}
 		for (int i = snake.size()-1; i>=1; i--) {
 			snake.get(i).setLayoutX(snake.get(i-1).getLayoutX());
@@ -85,8 +94,7 @@ public class Trash extends Application {
             break;
     }
 		gameOver();
-
-
+		
 	}
 	
 	private void createSnake() {
@@ -127,6 +135,7 @@ public class Trash extends Application {
 			scoreBoard.setText("Score: "+score);			
 			animationRate += 0.05;
 			timeline.setRate(animationRate);
+			timeline.play();
 		}	
 	}	
 	
@@ -134,17 +143,19 @@ public class Trash extends Application {
 		if (snake.get(0).getLayoutX() < 0 || snake.get(0).getLayoutY() < 0 
 				|| snake.get(0).getLayoutX() >= (sceneX) || snake.get(0).getLayoutY() >= (sceneY)) {
 			gameOver = true;
-		}		
+		}	
 		
 	}
 	
 	private void newGame() {
-    	pane.getChildren().removeAll(snake);
-    	pane.getChildren().remove(dummy);
-    	createSnake();
-    	createFood();
-    	createDummy();
-    	pane.getChildren().add(food);
+		gameOver = false;
+		pane.getChildren().clear();
+		snake = new ArrayList<>();
+		createSnake();
+		createFood();
+		createDummy();
+		pane.getChildren().add(food);
+		currentDirection = RIGHT;
     	score = 0;
 		scoreBoard.setText("Score: "+score);			
     	animationRate = 1;
@@ -185,9 +196,6 @@ public class Trash extends Application {
                     if (currentDirection != UP) {
                         currentDirection = DOWN;
                     }
-                }
-                if (code == KeyCode.N) {
-                	newGame();
                 }
             }
         });
