@@ -22,13 +22,14 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
  
-public class Trash extends Application {
+public class Main extends Application {
 	
 	int sceneX = 600;
 	int sceneY = 400;
 	int size = 10;
 	int currentDirection;
 	int score = 0;
+	int highScore = 0;
 	double animationRate = 1.00;
 	boolean gameOver = false;
 	ArrayList <Rectangle> snake = new ArrayList<>();
@@ -37,6 +38,7 @@ public class Trash extends Application {
 	Pane pane;
 	Timeline timeline;
 	Text scoreBoard;
+	Text highScoreBoard = new Text(500, -13, "High Score: "+highScore);
 	Button newGame = new Button("New Game");	
 
     private static final int RIGHT = 0;
@@ -52,6 +54,7 @@ public class Trash extends Application {
         createFood();
         createDummy();
 		pane.getChildren().add(food);
+		pane.getChildren().add(highScoreBoard);
         return pane;		
 	}
 	
@@ -71,6 +74,7 @@ public class Trash extends Application {
 			});		
 			pane.getChildren().add(newGame);
 			timeline.stop();
+			highScore();
 		}
 		for (int i = snake.size()-1; i>=1; i--) {
 			snake.get(i).setLayoutX(snake.get(i-1).getLayoutX());
@@ -94,7 +98,7 @@ public class Trash extends Application {
             break;
     }
 		gameOver();
-		
+		selfDestruct();
 	}
 	
 	private void createSnake() {
@@ -147,6 +151,24 @@ public class Trash extends Application {
 		
 	}
 	
+	private void selfDestruct() {
+		for (int i = 1; i< snake.size(); i++) {
+			if (snake.get(0).getLayoutX() == snake.get(i).getLayoutX() && 
+					snake.get(0).getLayoutY() == snake.get(i).getLayoutY()) {
+				gameOver = true;
+			}
+		}
+		
+	}
+	
+	private void highScore() {
+		if (highScore < score) {
+			highScore = score;
+		}
+		highScoreBoard.setText("High Score: "+highScore);		
+	}
+	
+	
 	private void newGame() {
 		gameOver = false;
 		pane.getChildren().clear();
@@ -155,6 +177,7 @@ public class Trash extends Application {
 		createFood();
 		createDummy();
 		pane.getChildren().add(food);
+		pane.getChildren().add(highScoreBoard);
 		currentDirection = RIGHT;
     	score = 0;
 		scoreBoard.setText("Score: "+score);			
